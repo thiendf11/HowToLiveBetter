@@ -18,4 +18,4 @@ if (!html.includes(marker)) throw new Error('Không tìm thấy điểm chèn co
 html = html.replace(/<!-- ga:start[\s\S]*?<!-- ga:end -->\s*/, '');
 html = html.replace(marker, `<script>window.__CORPUS__=${json};</script>\n<script>\n/* ---------- 调试面板`);
 writeFileSync(resolve(root, 'offline.html'), html);
-console.log(`Đã tạo vi/offline.html với ${paths.length} chương và ${docPaths.length} bài hướng dẫn, nội dung ${Buffer.byteLength(json)} byte.`);
+console.log(`Đã tạo offline.html với ${paths.length} chương và ${docPaths.length} bài hướng dẫn, nội dung ${Buffer.byteLength(json)} byte.`);
