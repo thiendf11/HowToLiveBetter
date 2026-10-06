@@ -15,16 +15,16 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cẩm nang sống hiệu quả">
 <meta property="og:locale" content="vi_VN">
-<meta property="og:url" content="https://eternity4719.github.io/HowToLiveBetter/vi/">
+<meta property="og:url" content="https://thiendf11.github.io/HowToLiveBetter/">
 <meta property="og:title" content="Cẩm nang sống hiệu quả · Bản tiếng Việt">
 <meta property="og:description" content="Bản dịch tiếng Việt không chính thức với 658 khuyến nghị về sức khỏe, tiền bạc, pháp luật và các quyết định đời sống.">
-<meta property="og:image" content="https://eternity4719.github.io/HowToLiveBetter/og.png">
+<meta property="og:image" content="https://thiendf11.github.io/HowToLiveBetter/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Cẩm nang sống hiệu quả · Bản tiếng Việt">
 <meta name="twitter:description" content="Bản dịch tiếng Việt không chính thức với 658 khuyến nghị về sức khỏe, tiền bạc, pháp luật và các quyết định đời sống.">
-<meta name="twitter:image" content="https://eternity4719.github.io/HowToLiveBetter/og.png">
+<meta name="twitter:image" content="https://thiendf11.github.io/HowToLiveBetter/og.png">
 
 <script>(function(){try{var s=localStorage.getItem('theme');var d=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark')}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -411,7 +411,7 @@ abbr.term:hover{border-bottom-color:var(--brand-1);color:var(--brand-1)}
   </div>
   <div class="group ad">
     <div class="gt">Ủng hộ</div>
-    <a href="https://4.mcyyy.com" target="_blank" rel="noopener"><img src="../ads/mcyyy-side.webp" alt="Máy chủ Minecraft của dự án gốc" width="624" height="312" loading="lazy"></a>
+    <a href="https://4.mcyyy.com" target="_blank" rel="noopener"><img src="ads/mcyyy-side.webp" alt="Máy chủ Minecraft của dự án gốc" width="624" height="312" loading="lazy"></a>
     <button type="button" class="tip-open" id="tip-open">Bạn thấy hữu ích? Có thể ủng hộ tác giả</button>
   </div>
 </aside>
@@ -448,7 +448,7 @@ abbr.term:hover{border-bottom-color:var(--brand-1);color:var(--brand-1)}
 
 <div id="tip-mask" hidden>
   <div id="tip-box" role="dialog" aria-modal="true" aria-label="Mã ủng hộ qua WeChat">
-    <img src="../ads/wechat-reward.png" alt="Mã ủng hộ tác giả qua WeChat" width="1037" height="1037" loading="lazy">
+    <img src="ads/wechat-reward.png" alt="Mã ủng hộ tác giả qua WeChat" width="1037" height="1037" loading="lazy">
     <p>Quét mã bằng WeChat để ủng hộ nếu bạn muốn. Việc này không ảnh hưởng nội dung.<br>Nếu xem trên điện thoại, hãy chụp màn hình rồi chọn ảnh trong WeChat.</p>
     <button type="button" id="tip-x">Đóng</button>
   </div>
@@ -611,6 +611,7 @@ function trimUrl(u){
 }
 // Markdown 链接 [文字](地址) 或裸 URL；仓库内的相对路径指向 GitHub 上的源文件
 const REPO_BLOB = new URL('./', location.href).href;
+const SITE_ROOT = REPO_BLOB.endsWith('/vi/') ? new URL('../', REPO_BLOB).href : REPO_BLOB;
 const LOCAL_DOC_ALIASES = {
   '家庭应急装备清单.md':'family-emergency-kit.md',
   '生物钟和夜班.md':'circadian-rhythm-and-night-shifts.md',
@@ -625,7 +626,7 @@ function localRepoHref(p){
     const name = path.slice('docs/'.length);
     path = 'docs/' + (LOCAL_DOC_ALIASES[name] || name);
   }
-  if (path === 'LICENSE' || path === 'LICENSE-CODE') return new URL('../' + path, REPO_BLOB).href;
+  if (path === 'LICENSE' || path === 'LICENSE-CODE') return new URL(path, SITE_ROOT).href;
   return REPO_BLOB + path.split('/').map(encodeURIComponent).join('/');
 }
 const MD_LINK_RE = /\[([^\]\n]+)\]\(([^)\s]+)\)/;
