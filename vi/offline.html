@@ -611,13 +611,29 @@ function trimUrl(u){
 }
 // Markdown 链接 [文字](地址) 或裸 URL；仓库内的相对路径指向 GitHub 上的源文件
 const REPO_BLOB = new URL('./', location.href).href;
+const LOCAL_DOC_ALIASES = {
+  '家庭应急装备清单.md':'family-emergency-kit.md',
+  '生物钟和夜班.md':'circadian-rhythm-and-night-shifts.md',
+  '遇到陌生人出事该不该停.md':'stranger-emergency-should-you-stop.md',
+  '结婚划不划算.md':'is-marriage-worth-it.md',
+  '做平台要办哪些证.md':'platform-licenses.md'
+};
+function localRepoHref(p){
+  if (/^(https?:|mailto:|#)/.test(p)) return p;
+  let path = p.replace(/^((\.\.?\/)+)/, '');
+  if (path.startsWith('docs/')){
+    const name = path.slice('docs/'.length);
+    path = 'docs/' + (LOCAL_DOC_ALIASES[name] || name);
+  }
+  if (path === 'LICENSE' || path === 'LICENSE-CODE') return new URL('../' + path, REPO_BLOB).href;
+  return REPO_BLOB + path.split('/').map(encodeURIComponent).join('/');
+}
 const MD_LINK_RE = /\[([^\]\n]+)\]\(([^)\s]+)\)/;
 const BOLD_RE = /\*\*((?:\\\*|[^*\n])+)\*\*/;   // 正文里的加粗，不转就会露出星号；粗体里允许 \* 这种转义星号（HLA-B\*5801）
 const unescMd = (s) => s.replace(/\\([*_])/g, '$1');
 const LINK_RE = new RegExp([MD_LINK_RE.source, URL_RE.source, BOLD_RE.source].join('|'), 'g');
 function hrefOf(p){
-  if (/^(https?:|mailto:|#)/.test(p)) return p;
-  return REPO_BLOB + p.replace(/^(\.\.?\/)+/, '').split('/').map(encodeURIComponent).join('/');
+  return localRepoHref(p);
 }
 function mkLink(href, text){
   const a = document.createElement('a'); a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = text;
@@ -707,12 +723,12 @@ const NUMS = '[\\d、]+(?:\\s*到\\s*\\d+)?';
 // 最后那一段认「见第 9 节」「走第 8、9 节的法律路径」这种不带条号的整节指路，
 // 全书有 135 处，以前一律是死字（2026-09-20 用户在第 5 节撞到的「（见第 9 节）」).
 // 它必须排在最后：前面几段先吃掉「第 9 节第 3 条」，剩下的才轮到它。
-const XREF_RE = /chương\s*(\d+)\s*,?\s*mục\s*([\d,]+)|mục\s*([\d,]+)|chương\s*([\d,]+)/gi;
+const XREF_RE = /chương\s*(\d+)\s*,?\s*mục\s*([\d,]+(?:\s*(?:đến|[-–])\s*\d+)?)|mục\s*(\d+)\.(\d+)|mục\s*([\d,]+(?:\s*(?:đến|[-–])\s*\d+)?)|chương\s*([\d,]+)/gi;
 // 「8 到 10」摊成 8、9、10；上限 40 是防着把法条条款号那种大范围摊成几百个键
 const xrefKeys = (sec, spec) => {
   const ns = [];
   for (const part of String(spec).split(',')){ 
-    const r = /^\s*(\d+)\s*到\s*(\d+)\s*$/.exec(part);
+    const r = /^\s*(\d+)\s*(?:到|đến|[-–])\s*(\d+)\s*$/i.exec(part);
     if (r){
       const a = +r[1], b = +r[2];
       if (b >= a && b - a <= 40) for (let i = a; i <= b; i++) ns.push(i);
@@ -726,9 +742,11 @@ function xrefInto(el, s, terms){
   XREF_RE.lastIndex = 0; let m, last = 0, any = false;
   while ((m = XREF_RE.exec(s))){
     // 整节指路的键写成 's9'，和条目键 '9-15' 分得开
-    const keys = m[4] != null
-      ? String(m[4]).split(',').map(x => x.trim()).filter(x => SECS.has(x)).map(x => 's' + x)
-      : xrefKeys(m[1] ?? CUR_SEC, m[2] ?? m[3] ?? '');
+    const keys = m[6] != null
+      ? String(m[6]).split(',').map(x => x.trim()).filter(x => SECS.has(x)).map(x => 's' + x)
+      : m[3] != null
+        ? xrefKeys(m[3], m[4])
+        : xrefKeys(m[1] ?? CUR_SEC, m[2] ?? m[5] ?? '');
     if (!keys.length) continue;
     highlightInto(el, s.slice(last, m.index), terms);
     const a = document.createElement('span');
@@ -1208,8 +1226,7 @@ const DM = {
   doc: document.getElementById('dm-doc'), heads: [], lastFocus: null
 };
 function dmHref(u){
-  if (/^(https?:|mailto:|#)/.test(u)) return u;
-  return REPO_BLOB + u.replace(/^(\.\.?\/)+/, '').split('/').map(encodeURIComponent).join('/');
+  return localRepoHref(u);
 }
 function dmInline(s){
   let h = esc(s);
